@@ -72,12 +72,18 @@ jobs:
             DEPLOY_PATH="/home/${{secrets.SSH_USER}}/deploy"
             cd $DEPLOY_PATH
 
-            #Detener y limpiar servicios anteriores (mejora clave)
-            sudo docker-compose down
+            #Detener y limpiar servicios anteriores
+            docker-compose down || true
 
             # DESCARGAR LA IMAGEN DESDE DOCKERHUB
-            echo ${{secrets.DOCKER_PASSWORD}} | sudo docker login -u ${{secrets.DOCKER_USER}} --password-stdin
+            echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u ${{secrets.DOCKER_USER}} --password-stdin
 
-            sudo docker-compose pull
-            sudo docker-compose up -d --force-recreate
-            sudo docker logout
+            docker-compose pull
+            docker-compose up -d --force-recreate
+            docker logout
+            
+            # Verificar estado
+            echo "=== Contenedores en ejecución ==="
+            docker ps
+            echo "=== Imágenes disponibles ==="
+            docker images
