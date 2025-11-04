@@ -70,20 +70,36 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
             DEPLOY_PATH="/home/${{secrets.SSH_USER}}/deploy"
+            
+            echo "=== Verificando directorio ==="
+            ls -la $DEPLOY_PATH
+            
+            echo "=== Contenido de Docker-compose.yml ==="
+            cat $DEPLOY_PATH/Docker-compose.yml
+            
             cd $DEPLOY_PATH
 
-            #Detener y limpiar servicios anteriores
+            # Detener servicios anteriores
             docker-compose down || true
 
-            # DESCARGAR LA IMAGEN DESDE DOCKERHUB
+            # Login a DockerHub
             echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u ${{secrets.DOCKER_USER}} --password-stdin
-
+            
+            echo "=== Descargando imagen ==="
             docker-compose pull
+            
+            echo "=== Iniciando contenedores ==="
             docker-compose up -d --force-recreate
+            
+            # Logout
             docker logout
             
             # Verificar estado
             echo "=== Contenedores en ejecución ==="
-            docker ps
+            docker ps -a
+            
             echo "=== Imágenes disponibles ==="
             docker images
+            
+            echo "=== Logs de docker-compose ==="
+            docker-compose logs --tail=50

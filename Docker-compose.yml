@@ -1,9 +1,9 @@
-version: "3.3"
+version: "3.8"
 services:
     web:build:
       image: ibling/frontend:latest #repo de dockerhub
       container_name: frontend
       ports:
         - "80:80"  #mapear el puerto 80 del contenedor al puerto 80 del host
-      restart: always
+      restart: unless-stopped
       
